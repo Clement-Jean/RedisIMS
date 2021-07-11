@@ -7,8 +7,8 @@ services:
             - 6379:6379
         volumes:
             - redis-data:/data
-            - ../ims.so:/usr/local/etc/redis/ims.so
-        command: redis-server --loadmodule /usr/local/etc/redis/ims.so
+            - ../ims.so:/usr/lib/ims.so
+        command: redis-server --loadmodule /usr/lib/ims.so
 
 volumes:
     redis-data:
