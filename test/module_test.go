@@ -63,3 +63,49 @@ func TestModule(t *testing.T) {
 		t.Errorf("GET hello = %s; want nil", string(val.([]uint8)))
 	}
 }
+
+func TestArgChecksSet(t *testing.T) {
+	c, err := redis.Dial("tcp", ":6379")
+	if err != nil {
+		t.Error(err)
+	}
+	defer c.Close()
+
+	_, err = c.Do("REDISIMS.SET", "", "world", strconv.FormatInt(time.Now().Unix(), 10))
+
+	if err == nil || err.Error() != "argv[1] cannot be empty" {
+		t.Error("This should return \"argv[1] cannot be empty\"")
+	}
+
+	_, err = c.Do("REDISIMS.SET", "hello", "", strconv.FormatInt(time.Now().Unix(), 10))
+
+	if err == nil || err.Error() != "argv[2] cannot be empty" {
+		t.Error("This should return \"argv[2] cannot be empty\"")
+	}
+
+	_, err = c.Do("REDISIMS.SET", "hello", "world", nil)
+
+	if err == nil || err.Error() != "argv[3] is not valid" {
+		t.Error("This should return \"argv[3] is not valid\"")
+	}
+}
+
+func TestArgChecksGet(t *testing.T) {
+	c, err := redis.Dial("tcp", ":6379")
+	if err != nil {
+		t.Error(err)
+	}
+	defer c.Close()
+
+	_, err = c.Do("REDISIMS.GET", "", "world")
+
+	if err == nil || err.Error() != "argv[1] cannot be empty" {
+		t.Error("This should return \"argv[1] cannot be empty\"")
+	}
+
+	_, err = c.Do("REDISIMS.GET", "hello", nil)
+
+	if err == nil || err.Error() != "argv[2] is not valid" {
+		t.Error("This should return \"argv[2] is not valid\"")
+	}
+}

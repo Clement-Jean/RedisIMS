@@ -14,8 +14,12 @@ int GetCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc)
         RedisModule_WrongArity(ctx);
 
     RedisModule_AutoMemory(ctx);
+    int length;
+    
+    const char *key = RedisModule_StringPtrLen(argv[1], &length);
 
-    const char *key = RedisModule_StringPtrLen(argv[1], NULL);
+    if (length == 0)
+        return RedisModule_ReplyWithError(ctx, "argv[1] cannot be empty");
 
     RedisModuleCallReply *cachedTimeReply = RedisModule_Call(ctx, "HGET", "cc", hKey, key);
     
@@ -33,9 +37,9 @@ int GetCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc)
     long long time;
 
     if (RedisModule_StringToLongLong(cachedTimeStr, &cachedTime) != REDISMODULE_OK)
-        return REDISMODULE_ERR;
+        return RedisModule_ReplyWithError(ctx, "Internal: cachedTimeStr is not correctly formatted");
     if (RedisModule_StringToLongLong(argv[2], &time) != REDISMODULE_OK)
-        return REDISMODULE_ERR;
+        return RedisModule_ReplyWithError(ctx, "argv[2] is not valid");
 
     if (cachedTime > time)
     {
@@ -56,13 +60,22 @@ int SetCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc)
         return RedisModule_WrongArity(ctx);
 
     RedisModule_AutoMemory(ctx);
+    int length;
 
-    const char *key = RedisModule_StringPtrLen(argv[1], NULL);
-    const char *value = RedisModule_StringPtrLen(argv[2], NULL);
+    const char *key = RedisModule_StringPtrLen(argv[1], &length);
+
+    if (length == 0)
+        return RedisModule_ReplyWithError(ctx, "argv[1] cannot be empty");
+
+    const char *value = RedisModule_StringPtrLen(argv[2], &length);
+
+    if (length == 0)
+        return RedisModule_ReplyWithError(ctx, "argv[2] cannot be empty");
+
     long long time;
 
     if (RedisModule_StringToLongLong(argv[3], &time) != REDISMODULE_OK)
-        return REDISMODULE_ERR;
+        return RedisModule_ReplyWithError(ctx, "argv[3] is not valid");
     
     RedisModuleCallReply *setReply = RedisModule_Call(ctx, "SET", "cc", key, value);
     
