@@ -11,8 +11,6 @@ const char *hKey = "MTIME";
  */
 int GetCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc)
 {
-    RedisModule_Log(ctx, "debug", "GET: %d\n", argc);
-
     if (argc != 3)
         RedisModule_WrongArity(ctx);
 
@@ -59,8 +57,6 @@ int GetCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc)
  */
 int SetCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc)
 {
-    RedisModule_Log(ctx, "debug", "SET: %d\n", argc);
-
     if (argc != 4)
         return RedisModule_WrongArity(ctx);
 
@@ -98,8 +94,6 @@ int SetCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc)
  */
 int ExistsCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc)
 {
-    RedisModule_Log(ctx, "debug", "EXISTS: %d\n", argc);
-
     if (argc != 2)
         RedisModule_WrongArity(ctx);
 
