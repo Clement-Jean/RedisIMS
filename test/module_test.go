@@ -33,14 +33,10 @@ func TestModule(t *testing.T) {
 		t.Error(err)
 	}
 
-	val, err = c.Do("GET", "hello")
+	val, err = c.Do("REDISIMS.EXISTS", "hello")
 
-	if err != nil {
-		t.Error(err)
-	}
-
-	if val != nil && string(val.([]uint8)) != "world" {
-		t.Errorf("GET hello = %s; want nil", string(val.([]uint8)))
+	if err != nil || val.(int64) != 1 {
+		t.Error("Expect the key to exist")
 	}
 
 	val, err = c.Do("REDISIMS.GET", "hello", strconv.FormatInt(now.Add(-100*time.Second).Unix(), 10))

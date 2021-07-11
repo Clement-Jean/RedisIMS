@@ -3,6 +3,7 @@
 const char *moduleName = "redisims";
 const char *moduleGet = "redisims.get";
 const char *moduleSet = "redisims.set";
+const char *moduleExists = "redisims.exists";
 const char *hKey = "MTIME";
 
 /* GetCommand - redisims.get [KEY] [TIME]
@@ -10,7 +11,9 @@ const char *hKey = "MTIME";
  */
 int GetCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc)
 {
-    if (argc < 2)
+    RedisModule_Log(ctx, "debug", "GET: %d\n", argc);
+
+    if (argc != 3)
         RedisModule_WrongArity(ctx);
 
     RedisModule_AutoMemory(ctx);
@@ -56,7 +59,9 @@ int GetCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc)
  */
 int SetCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc)
 {
-    if (argc < 3)
+    RedisModule_Log(ctx, "debug", "SET: %d\n", argc);
+
+    if (argc != 4)
         return RedisModule_WrongArity(ctx);
 
     RedisModule_AutoMemory(ctx);
@@ -87,6 +92,22 @@ int SetCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc)
     return RedisModule_ReplyWithCallReply(ctx, hsetReply);
 }
 
+/* ExistsCommand - redisims.exists [KEY]
+ * Returns 0 if the KEY is not found and 1 if it is
+ * This is mostly hidding the MTIME key
+ */
+int ExistsCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc)
+{
+    RedisModule_Log(ctx, "debug", "EXISTS: %d\n", argc);
+
+    if (argc != 2)
+        RedisModule_WrongArity(ctx);
+
+    RedisModuleCallReply *hexistsReply = RedisModule_Call(ctx, "HEXISTS", "cs", hKey, argv[1]);
+
+    return RedisModule_ReplyWithCallReply(ctx, hexistsReply);
+}
+
 int RedisModule_OnLoad(RedisModuleCtx *ctx)
 {
     if (RedisModule_Init(ctx, moduleName, 1, REDISMODULE_APIVER_1) == REDISMODULE_ERR)
@@ -96,6 +117,9 @@ int RedisModule_OnLoad(RedisModuleCtx *ctx)
         return REDISMODULE_ERR;
 
     if (RedisModule_CreateCommand(ctx, moduleSet, SetCommand, "write", 1, 1, 1) == REDISMODULE_ERR)
+        return REDISMODULE_ERR;
+
+    if (RedisModule_CreateCommand(ctx, moduleExists, ExistsCommand, "readonly", 1, 1, 1) == REDISMODULE_ERR)
         return REDISMODULE_ERR;
 
     return REDISMODULE_OK;
