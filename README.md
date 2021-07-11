@@ -5,8 +5,10 @@ RedisIMS is a lightweight Redis module following the If Modified Since (IMS) pat
 ## Example (pseudocode)
 
 ```
+redisims.exists MY_NON_EXISTING_KEY -> 0 
 redisims.get MY_NON_EXISTING_KEY TIMESTAMP -> NULL
 redisims.set MY_EXISTING_KEY THE_VALUE THE_TIMESTAMP
+redisims.exists MY_EXISTING_KEY -> 1
 redisims.get MY_EXISTING_KEY OUTDATED_TIMESTAMP -> YOUR_OBJECT
 redisims.get MY_EXISTING_KEY CURRENT_TIMESTAMP -> NULL
 ```
