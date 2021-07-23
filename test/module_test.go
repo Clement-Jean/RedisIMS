@@ -39,6 +39,12 @@ func TestModule(t *testing.T) {
 		t.Error("Expect the key to exist")
 	}
 
+	val, err = c.Do("HEXISTS", "TEST", "hello")
+
+	if err != nil || val.(int64) != 1 {
+		t.Error("Expect the key to exist")
+	}
+
 	val, err = c.Do("REDISIMS.GET", "hello", strconv.FormatInt(now.Add(-100*time.Second).Unix(), 10))
 
 	if err != nil {

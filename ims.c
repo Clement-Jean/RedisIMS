@@ -1,10 +1,10 @@
 #include "redismodule.h"
 
-const char *moduleName = "redisims";
-const char *moduleGet = "redisims.get";
-const char *moduleSet = "redisims.set";
-const char *moduleExists = "redisims.exists";
-const char *hKey = "MTIME";
+static const char *moduleName = "redisims";
+static const char *moduleGet = "redisims.get";
+static const char *moduleSet = "redisims.set";
+static const char *moduleExists = "redisims.exists";
+static const char *hKey = "MTIME";
 
 /* GetCommand - redisims.get [KEY] [TIME]
  * Returns the value stored for the KEY iff the value is modified since time specified
@@ -90,22 +90,27 @@ int SetCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc)
 
 /* ExistsCommand - redisims.exists [KEY]
  * Returns 0 if the KEY is not found and 1 if it is
- * This is mostly hidding the MTIME key
+ * This is mostly hidding the hKey
  */
 int ExistsCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc)
 {
-    if (argc != 2)
-        RedisModule_WrongArity(ctx);
-
     RedisModuleCallReply *hexistsReply = RedisModule_Call(ctx, "HEXISTS", "cs", hKey, argv[1]);
 
     return RedisModule_ReplyWithCallReply(ctx, hexistsReply);
 }
 
-int RedisModule_OnLoad(RedisModuleCtx *ctx)
+int RedisModule_OnLoad(RedisModuleCtx *ctx, RedisModuleString **argv, int argc)
 {
     if (RedisModule_Init(ctx, moduleName, 1, REDISMODULE_APIVER_1) == REDISMODULE_ERR)
         return REDISMODULE_ERR;
+
+    RedisModule_Log(ctx, "notice", "ARGC = %d\n", argc);
+
+    if (argc == 1)
+    {
+        hKey = RedisModule_StringPtrLen(argv[0], NULL);
+        RedisModule_Log(ctx, "notice", "HKEY = %s\n", hKey);
+    }
 
     if (RedisModule_CreateCommand(ctx, moduleGet, GetCommand, "readonly", 1, 1, 1) == REDISMODULE_ERR)
         return REDISMODULE_ERR;
