@@ -12,7 +12,7 @@ all: 	$(OBJ) ## Create module
 		$(CC) $(CFLAGS) -c -o $@ $<
 
 test:	all ## Launch tests
-		cd test && sudo docker-compose up -d && until nc -w 10 127.0.0.1 6379; do sleep 1; done && go test -v -cover
+		cd test && sudo docker-compose up -d && until nc -w 10 127.0.0.1 6379; do sleep 1; done && go test -v
 
 .PHONY: test
 
